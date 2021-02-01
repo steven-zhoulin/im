@@ -1,5 +1,6 @@
 package com.topsail.im.server;
 
+import com.topsail.im.server.register.EndpointRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -7,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -28,14 +30,16 @@ public class PushServer implements ApplicationRunner {
     @Value("${netty.server.port:8090}")
     private int port;
 
+    @Autowired
+    private EndpointRegistry endpointRegistry;
+
     /**
      * Callback used to run the bean.
      *
      * @param args incoming application arguments
-     * @throws Exception on error
      */
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(hostname, port);
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -51,7 +55,11 @@ public class PushServer implements ApplicationRunner {
         try {
             ChannelFuture future = bootstrap.bind(inetSocketAddress).sync();
             log.info("服务器启动开始监听端口: {}", inetSocketAddress.getPort());
-            // 主线程执行到这里就 wait 子线程结束，子线程才是真正监听和接受请求的
+            String endpoint = hostname + ":" + port;
+
+            endpointRegistry.online(endpoint);
+            log.info("上报 PushServer 接入地址: {}", endpoint);
+
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

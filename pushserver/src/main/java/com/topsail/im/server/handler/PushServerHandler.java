@@ -10,7 +10,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
  * @date 2021-02-01
  */
 @Slf4j
-public class NettyServerHandler extends ChannelInboundHandlerAdapter {
+public class PushServerHandler extends ChannelInboundHandlerAdapter {
     /**
      * 客户端连接会触发
      */
