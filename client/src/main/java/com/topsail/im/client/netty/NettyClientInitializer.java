@@ -11,7 +11,7 @@ import io.netty.handler.codec.string.StringEncoder;
  */
 public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
     @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
+    protected void initChannel(SocketChannel socketChannel) {
         socketChannel.pipeline().addLast("decoder", new StringDecoder());
         socketChannel.pipeline().addLast("encoder", new StringEncoder());
         socketChannel.pipeline().addLast(new NettyClientHandler());

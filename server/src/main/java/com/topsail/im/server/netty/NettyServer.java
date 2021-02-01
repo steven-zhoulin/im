@@ -7,7 +7,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 
 /**
@@ -15,33 +20,44 @@ import java.net.InetSocketAddress;
  * @date 2021-02-01
  */
 @Slf4j
-public class NettyServer {
+@Component
+public class NettyServer implements ApplicationRunner {
 
-    public void start(InetSocketAddress socketAddress) {
-        //new 一个主线程组
+    @Value("${netty.server.hostname:127.0.0.1}")
+    private String hostname;
+
+    @Value("${netty.server.port:8090}")
+    private int port;
+
+    /**
+     * Callback used to run the bean.
+     *
+     * @param args incoming application arguments
+     * @throws Exception on error
+     */
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(hostname, port);
+
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        //new 一个工作线程组
         EventLoopGroup workGroup = new NioEventLoopGroup(200);
         ServerBootstrap bootstrap = new ServerBootstrap()
             .group(bossGroup, workGroup)
             .channel(NioServerSocketChannel.class)
             .childHandler(new ServerChannelInitializer())
-            .localAddress(socketAddress)
-            //设置队列大小
+            .localAddress(inetSocketAddress)
             .option(ChannelOption.SO_BACKLOG, 1024)
-            // 两小时内没有数据的通信时,TCP会自动发送一个活动探测数据报文
             .childOption(ChannelOption.SO_KEEPALIVE, true);
-        //绑定端口,开始接收进来的连接
+
         try {
-            ChannelFuture future = bootstrap.bind(socketAddress).sync();
-            log.info("服务器启动开始监听端口: {}", socketAddress.getPort());
+            ChannelFuture future = bootstrap.bind(inetSocketAddress).sync();
+            log.info("服务器启动开始监听端口: {}", inetSocketAddress.getPort());
+            // 主线程执行到这里就 wait 子线程结束，子线程才是真正监听和接受请求的
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            //关闭主线程组
             bossGroup.shutdownGracefully();
-            //关闭工作线程组
             workGroup.shutdownGracefully();
         }
     }
