@@ -5,4 +5,4 @@ pluginManagement {
 }
 rootProject.name = 'im'
 
-include('server', 'client')
+include('pushserver', 'client')

@@ -1,4 +1,4 @@
-package com.topsail.im.server.netty;
+package com.topsail.im.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -12,7 +12,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 
 /**
@@ -21,7 +20,7 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 @Component
-public class NettyServer implements ApplicationRunner {
+public class PushServer implements ApplicationRunner {
 
     @Value("${netty.server.hostname:127.0.0.1}")
     private String hostname;

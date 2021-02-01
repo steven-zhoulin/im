@@ -1,5 +1,6 @@
-package com.topsail.im.server.netty;
+package com.topsail.im.server;
 
+import com.topsail.im.server.handler.NettyServerHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
@@ -12,7 +13,7 @@ import io.netty.util.CharsetUtil;
  */
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
     @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
+    protected void initChannel(SocketChannel socketChannel) {
         //添加编解码
         socketChannel.pipeline().addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
         socketChannel.pipeline().addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));

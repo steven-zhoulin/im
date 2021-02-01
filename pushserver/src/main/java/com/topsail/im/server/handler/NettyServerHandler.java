@@ -1,8 +1,9 @@
-package com.topsail.im.server.netty;
+package com.topsail.im.server.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 /**
  * @author Steven
@@ -14,7 +15,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      * 客户端连接会触发
      */
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         log.info("Channel active......");
     }
 
@@ -22,9 +23,10 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      * 客户端发消息会触发
      */
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         log.info("服务器收到消息: {}", msg.toString());
-        ctx.write("你也好哦");
+        String now = DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss");
+        ctx.write("服务器时间：" + now);
         ctx.flush();
     }
 
@@ -32,7 +34,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      * 发生异常触发
      */
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
     }
